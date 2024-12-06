@@ -1,0 +1,38 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Django: Runserver",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/manage.py",
+			"args": [
+				"runserver",
+				"--noreload"
+			],
+			"django": true,
+			"env": {
+				"DJANGO_SETTINGS_MODULE": "plaigarism_detector.settings" // Replace with your Django settings module
+			},
+			"envFile": "${workspaceFolder}/.env", // Optional if you have environment variables
+			"console": "integratedTerminal", // Use integrated terminal for running the server
+			"justMyCode": true
+		},
+		{
+			"name": "Django: Debug Runserver",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/manage.py",
+			"args": [
+				"runserver"
+			],
+			"django": true,
+			"env": {
+				"DJANGO_SETTINGS_MODULE": "plaigarism_detector.settings" // Replace with your Django settings module
+			},
+			"envFile": "${workspaceFolder}/.env", // Optional if you have environment variables
+			"console": "integratedTerminal",
+			"justMyCode": false // This will allow debugging of all code, including libraries
+		}
+	]
+}

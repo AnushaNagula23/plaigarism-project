@@ -15,24 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-
-
-
-
-@api_view(['GET', 'POST'])
-def plaigarismReport(request):
-	if request.method == 'GET':
-		return Response({"message": "Get Response"}, status= status.HTTP_200_OK)
-	elif request.method == 'POST':
-		data = request.data
-		return Response({"message": "Response for POST", "data":data}, status=status.HTTP_201_CREATED)
-
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('api/get-plaigarism-report', plaigarismReport , name='api')
+	path('api/', include('contests.urls')),
 ]
