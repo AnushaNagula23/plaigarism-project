@@ -20,7 +20,8 @@ class GetContestBySlugAPIView(APIView):
                 {
                     '_id': 1,  # Contest ID
                     'batchIds': 1,
-                    'participations': 1
+                    'participations': 1,
+                    'window': 1
                 }
             )
 
@@ -30,14 +31,24 @@ class GetContestBySlugAPIView(APIView):
             # Extract required data
             contest_id = contest['_id']
             participations = contest.get('participations', [])
-            user_ids = [participation['userId'] for participation in participations]
+            user_ids = [p['userId'] for p in participations]
 
+            # Extract window start and end times
+            window = contest.get('window', {})
+            window_start = window.get('start')
+            window_end = window.get('end')
             # Fetch submissions for each problem in the contest
             submissions = list(submissions_collection.find(
                 {
                     'contestId': contest_id,
                     'userId': {'$in': user_ids},
-                    'verdict': 'Accepted'
+                    'verdict': 'Accepted',
+                    'solutions': {
+                        '$elemMatch': {
+                            'submittedAt': {'$gte': window_start, '$lte': window_end},
+                            'verdict': 'Accepted'
+                        }
+                    }
                 },
                 {
                     '_id': 0,  # Exclude MongoDB ID
@@ -48,12 +59,24 @@ class GetContestBySlugAPIView(APIView):
             ))
             
             grouped_submissions = defaultdict(list)
-            for submission in submissions:
-                problem_id = str(submission['problemId'])
+            for sub in submissions:
+                problem_id = str(sub['problemId'])  # Convert ObjectId to string
+
+                # Filter solutions based on submittedAt within the contest window
+                filtered_solutions = [
+                    {
+                        'code': solution['code'],
+                        'language': solution['language']
+                    }
+                    for solution in sub.get('solutions', [])
+                    if window_start <= solution['submittedAt'] <= window_end and solution['verdict'] == 'Accepted'
+                ]
+
                 grouped_submissions[problem_id].append({
-                    **submission,
-                    'userId': str(submission['userId']),
-                    'problemId': problem_id
+                    'userId': str(sub['userId']),  # Convert ObjectId to string
+                    #'solutions': filtered_solutions  # Include only filtered solutions
+                    'code': filtered_solutions[0].get('code'),
+                    'language': filtered_solutions[0].get('language')
                 })
 
             # Convert defaultdict to a normal dict
