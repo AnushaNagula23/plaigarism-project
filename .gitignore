@@ -34,3 +34,6 @@ pip-delete-this-directory.txt
 
 # pyenv 
 .python-version 
+
+#.env file
+.env
