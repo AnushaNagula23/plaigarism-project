@@ -19,6 +19,9 @@ from pymongo import MongoClient
 MONGO_DB_URI = 'mongodb://localhost:27017'  # MongoDB URI
 MONGO_DB_NAME = 'hive-prod'
 
+client = MongoClient(MONGO_DB_URI)  # Get the MongoDB client using URI from settings
+MONGO_DB = client[MONGO_DB_NAME]  # Get the database using the name from settings
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
