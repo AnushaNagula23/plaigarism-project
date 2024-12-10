@@ -4,6 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from .utils import get_mongo_collection  # Import the helper function
 
+import boto3
+from django.http import JsonResponse
+
+AWS_ACCESS_KEY_ID='your-access-key'
+AWS_SECRET_ACCESS_KEY='your-secret-key'
+AWS_REGION='your-region'
+
+
 class GetContestBySlugAPIView(APIView):
     """
     API to retrieve contest details and associated submissions for each problem.
@@ -90,3 +98,39 @@ class GetContestBySlugAPIView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def fetch_s3_files(request):
+    # Initialize the S3 client
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id='AKIAZDZTBXA5DOFC3KXK',  # You can also use settings variables
+        aws_secret_access_key='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',
+        region_name='eu-north-1'
+    )
+    
+    bucket_name = 'connectiontestaws'
+    try:
+        # List objects in the S3 bucket
+        response = s3.list_objects_v2(Bucket=bucket_name)
+        
+        # Check if the bucket contains any files
+        if 'Contents' not in response:
+            return JsonResponse({'message': 'No files found in the bucket'}, status=404)
+        
+        files = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            
+            # Fetch file content
+            file_object = s3.get_object(Bucket=bucket_name, Key=file_key)
+            file_content = file_object['Body'].read().decode('utf-8')
+            
+            files.append({
+                'file_name': file_key,
+                'content': file_content,
+            })
+        
+        return JsonResponse({'files': files})
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
