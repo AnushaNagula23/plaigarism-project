@@ -6,10 +6,7 @@ from .utils import get_mongo_collection  # Import the helper function
 
 import boto3
 from django.http import JsonResponse
-
-AWS_ACCESS_KEY_ID='your-access-key'
-AWS_SECRET_ACCESS_KEY='your-secret-key'
-AWS_REGION='your-region'
+import os
 
 
 class GetContestBySlugAPIView(APIView):
@@ -100,12 +97,15 @@ class GetContestBySlugAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def fetch_s3_files(request):
+    
+        
+    # print(os.environ.get('AWS_ACCESS_KEY_ID'))
     # Initialize the S3 client
     s3 = boto3.client(
         's3',
-        aws_access_key_id='AKIAZDZTBXA5DOFC3KXK',  # You can also use settings variables
-        aws_secret_access_key='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',
-        region_name='eu-north-1'
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.getenv('AWS_REGION')
     )
     
     bucket_name = 'connectiontestaws'
